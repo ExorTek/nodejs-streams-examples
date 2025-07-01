@@ -1,0 +1,16 @@
+{
+  "name": "nodejs-streams-examples",
+  "workspaces": [
+    "backend",
+    "frontend"
+  ],
+  "scripts": {
+    "format": "prettier --write \"**/*.{js,jsx,json,md}\"",
+    "dev": "concurrently \"yarn workspace backend dev\" \"yarn workspace frontend dev\""
+  },
+  "packageManager": "yarn@4.9.2",
+  "devDependencies": {
+    "concurrently": "^9.2.0",
+    "prettier": "^3.6.2"
+  }
+}
