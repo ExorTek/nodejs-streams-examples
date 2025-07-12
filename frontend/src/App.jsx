@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import { Readable, Writable, Duplex } from '@pages';
+import { Readable, Writable, Duplex, Home, NotFound, Transform, Pipe } from '@pages';
 
 function App() {
   return (
@@ -7,6 +7,11 @@ function App() {
       <div className={'w-full max-w-6xl mx-auto'}>
         <BrowserRouter>
           <Routes>
+            <Route
+              index
+              path={'/'}
+              element={<Home />}
+            />
             <Route
               path={'/readable'}
               element={<Readable />}
@@ -18,6 +23,18 @@ function App() {
             <Route
               path={'/duplex'}
               element={<Duplex />}
+            />
+            <Route
+              path={'*'}
+              element={<NotFound />}
+            />
+            <Route
+              path={'/pipe'}
+              element={<Pipe />}
+            />
+            <Route
+              path={'/transform'}
+              element={<Transform />}
             />
           </Routes>
         </BrowserRouter>
