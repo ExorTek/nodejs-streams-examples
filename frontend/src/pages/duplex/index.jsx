@@ -1,8 +1,7 @@
 import { useState } from 'react';
 import { Header, InfoPanel } from '@components';
 
-// Duplex-specific components
-const DuplexControls = ({ endpoints, activeEndpoint, onEndpointSelect, onParamChange, onSendData, isProcessing }) => {
+const DuplexControls = ({ endpoints, activeEndpoint, onEndpointSelect, onParamChange, isProcessing }) => {
   return (
     <div className={'bg-gray-800 rounded-lg shadow-lg p-6 border border-gray-700'}>
       <h2 className={'text-xl font-semibold mb-4 text-white'}>Duplex Stream Types</h2>
@@ -141,7 +140,6 @@ const CommunicationResults = ({ results, onClearResults }) => {
       </div>
 
       <div className={'space-y-4'}>
-        {/* Statistics */}
         {results.stats && (
           <div className={'bg-purple-900 bg-opacity-30 rounded-lg p-4 border border-purple-700'}>
             <h3 className={'text-lg font-medium text-purple-300 mb-2'}>Communication Stats</h3>
@@ -158,7 +156,6 @@ const CommunicationResults = ({ results, onClearResults }) => {
           </div>
         )}
 
-        {/* Echo Results */}
         {results.echoes && (
           <div className={'bg-green-900 bg-opacity-30 rounded-lg p-4 border border-green-700'}>
             <h3 className={'text-lg font-medium text-green-300 mb-2'}>Echo Responses</h3>
@@ -174,7 +171,6 @@ const CommunicationResults = ({ results, onClearResults }) => {
           </div>
         )}
 
-        {/* Transform Results */}
         {results.transformed && (
           <div className={'bg-blue-900 bg-opacity-30 rounded-lg p-4 border border-blue-700'}>
             <h3 className={'text-lg font-medium text-blue-300 mb-2'}>Transformed Data</h3>
@@ -190,7 +186,6 @@ const CommunicationResults = ({ results, onClearResults }) => {
           </div>
         )}
 
-        {/* Conversation Results */}
         {results.conversation && (
           <div className={'bg-yellow-900 bg-opacity-30 rounded-lg p-4 border border-yellow-700'}>
             <h3 className={'text-lg font-medium text-yellow-300 mb-2'}>Chat Conversation</h3>
@@ -206,7 +201,6 @@ const CommunicationResults = ({ results, onClearResults }) => {
           </div>
         )}
 
-        {/* Bidirectional Communication */}
         {results.communication && (
           <div className={'bg-purple-900 bg-opacity-30 rounded-lg p-4 border border-purple-700'}>
             <h3 className={'text-lg font-medium text-purple-300 mb-2'}>Bidirectional Flow</h3>
@@ -222,13 +216,47 @@ const CommunicationResults = ({ results, onClearResults }) => {
           </div>
         )}
 
-        {/* Error Display */}
-        {results.error && (
-          <div className={'bg-red-900 bg-opacity-30 rounded-lg p-4 border border-red-700'}>
-            <h3 className={'text-lg font-medium text-red-300 mb-2'}>Error</h3>
-            <div className={'text-red-400 font-mono text-sm'}>{results.error}</div>
+        <div className='mt-4 p-4 rounded-lg border-2 border-dashed transition-all duration-300 hover:border-solid'>
+          <div className='flex items-center space-x-3'>
+            <div
+              className={`w-3 h-3 rounded-full animate-pulse ${results.success ? 'bg-green-400' : 'bg-red-400'}`}></div>
+            <div className='flex-1'>
+              <div className='text-sm font-medium text-white mb-1'>{results.success ? 'Success' : 'Error'}</div>
+              <div className={`text-sm ${results.success ? 'text-green-300' : 'text-red-300'}`}>
+                {results.success ? (
+                  <span className='flex items-center space-x-2'>
+                    <svg
+                      className='w-4 h-4'
+                      fill='currentColor'
+                      viewBox='0 0 20 20'>
+                      <path
+                        fillRule='evenodd'
+                        d='M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z'
+                        clipRule='evenodd'
+                      />
+                    </svg>
+                    <span>Operation completed successfully!</span>
+                  </span>
+                ) : (
+                  <span className='flex items-center space-x-2'>
+                    <svg
+                      className='w-4 h-4'
+                      fill='currentColor'
+                      viewBox='0 0 20 20'>
+                      <path
+                        fillRule='evenodd'
+                        d='M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z'
+                        clipRule='evenodd'
+                      />
+                    </svg>
+                    <span>Error: {results.message || 'An error occurred during processing.'}</span>
+                  </span>
+                )}
+              </div>
+            </div>
+            <div className='text-xs text-gray-500'>{new Date().toLocaleTimeString()}</div>
           </div>
-        )}
+        </div>
       </div>
     </div>
   );
@@ -341,16 +369,21 @@ function Duplex() {
     });
 
     if (!response || !response.ok) {
+      const result = await response.json();
       setIsProcessing(false);
       setResults({
-        error: `Failed to establish duplex communication - ${response?.status || 'Network Error'}`,
-        stats: { error: true },
+        success: false,
+        statusCode: response.status,
+        message: result.message || 'An error occurred while processing the pipe operation.',
       });
       return;
     }
 
     const result = await response.json();
-    setResults(result.results);
+    setResults({
+      success: true,
+      ...result.results,
+    });
     setIsProcessing(false);
   };
 
