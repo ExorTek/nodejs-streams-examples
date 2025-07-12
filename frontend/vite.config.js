@@ -14,4 +14,31 @@ export default defineConfig({
       '@services': resolve(__dirname, 'src/services'),
     },
   },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: id => {
+          if (id.includes('node_modules')) {
+            return 'vendor';
+          }
+
+          if (id.includes('src/pages/duplex')) {
+            return 'duplex';
+          }
+          if (id.includes('src/pages/transform')) {
+            return 'transform';
+          }
+          if (id.includes('src/pages/pipe')) {
+            return 'pipe';
+          }
+          if (id.includes('src/pages/writable')) {
+            return 'writable';
+          }
+          if (id.includes('src/pages/readable')) {
+            return 'readable';
+          }
+        },
+      },
+    },
+  },
 });

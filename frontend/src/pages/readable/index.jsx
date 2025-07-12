@@ -1,6 +1,5 @@
 import { useState, useRef } from 'react';
 import { Header, StreamControls, StreamOutput, StreamStats, InfoPanel } from '@components';
-import { readableBasicFromApi, readableDataFromApi, readableLogsFromApi, readableCustomFromApi } from '@services';
 
 function Readable() {
   const [activeStream, setActiveStream] = useState(null);
@@ -14,7 +13,6 @@ function Readable() {
       id: 'basic',
       name: 'Basic Number Stream',
       description: 'Simple counting stream with delays',
-      apiCall: readableBasicFromApi,
       params: [
         { name: 'start', type: 'number', default: 1, label: 'Start Number' },
         { name: 'end', type: 'number', default: 10, label: 'End Number' },
@@ -25,7 +23,6 @@ function Readable() {
       id: 'data',
       name: 'JSON Data Stream',
       description: 'Streaming JSON objects',
-      apiCall: readableDataFromApi,
       params: [
         { name: 'count', type: 'number', default: 10, label: 'Item Count' },
         { name: 'delay', type: 'number', default: 300, label: 'Delay (ms)' },
@@ -35,7 +32,6 @@ function Readable() {
       id: 'logs',
       name: 'Log Stream',
       description: 'Simulated log entries',
-      apiCall: readableLogsFromApi,
       params: [
         { name: 'maxLogs', type: 'number', default: 10, label: 'Max Logs' },
         { name: 'delay', type: 'number', default: 400, label: 'Delay (ms)' },
@@ -45,7 +41,6 @@ function Readable() {
       id: 'custom',
       name: 'Custom Text Stream',
       description: 'Custom text with repetition',
-      apiCall: readableCustomFromApi,
       params: [
         { name: 'text', type: 'text', default: 'Hello', label: 'Text' },
         { name: 'repeat', type: 'number', default: 5, label: 'Repeat Count' },
@@ -90,8 +85,19 @@ function Readable() {
 
     const params = streamParams[endpoint.id];
 
-    const response = await endpoint.apiCall(params, {
+    const baseUrl = 'http://127.0.0.1:5001/api/v1/readable';
+
+    const url = new URL(`${baseUrl}/${endpoint.id}`);
+    Object.keys(params).forEach(key => {
+      url.searchParams.append(key, params[key]);
+    });
+
+    const response = await fetch(url, {
+      method: 'GET',
       signal: abortControllerRef.current.signal,
+      headers: {
+        'Content-Type': 'application/json',
+      },
     });
 
     if (!response || !response.ok) {
