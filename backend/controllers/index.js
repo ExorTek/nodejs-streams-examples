@@ -1,5 +1,4 @@
 module.exports = {
-  comboController: require('./combo'),
   compressController: require('./compress'),
   duplexController: require('./duplex'),
   encryptController: require('./encrypt'),

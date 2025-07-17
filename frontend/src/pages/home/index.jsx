@@ -86,13 +86,6 @@ const HomePage = () => {
       icon: '🔄',
       color: 'bg-emerald-600 hover:bg-emerald-700',
     },
-    {
-      path: '/combo',
-      title: 'Combo Stream',
-      description: 'Combining multiple stream types',
-      icon: '🎯',
-      color: 'bg-violet-600 hover:bg-violet-700',
-    },
   ];
 
   return (
