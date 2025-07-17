@@ -347,7 +347,7 @@ function Duplex() {
     setIsProcessing(true);
     setResults(null);
 
-    const baseUrl = 'http://127.0.0.1:5001/api/v1/duplex';
+    const baseUrl = import.meta.env.VITE_STREAM_API_URL + '/duplex';
 
     // Build query parameters
     const queryParams = new URLSearchParams();

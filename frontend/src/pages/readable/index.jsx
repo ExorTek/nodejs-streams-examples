@@ -85,7 +85,7 @@ function Readable() {
 
     const params = streamParams[endpoint.id];
 
-    const baseUrl = 'http://127.0.0.1:5001/api/v1/readable';
+    const baseUrl = import.meta.env.VITE_STREAM_API_URL + '/readable';
 
     const url = new URL(`${baseUrl}/${endpoint.id}`);
     Object.keys(params).forEach(key => {

@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import { Readable, Writable, Duplex, Home, NotFound, Transform, Pipe } from '@pages';
+import { Readable, Writable, Duplex, Home, NotFound, Transform, Pipe, Monitor, Throttle } from '@pages';
 
 function App() {
   return (
@@ -35,6 +35,14 @@ function App() {
             <Route
               path={'/transform'}
               element={<Transform />}
+            />
+            <Route
+              path={'/monitor'}
+              element={<Monitor />}
+            />
+            <Route
+              path={'/throttle'}
+              element={<Throttle />}
             />
           </Routes>
         </BrowserRouter>
