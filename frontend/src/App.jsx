@@ -13,6 +13,7 @@ import {
   JsonL,
   Compress,
   Encrypt,
+  Proxy,
 } from '@pages';
 import { useMemo } from 'react';
 
@@ -33,6 +34,7 @@ function App() {
       { path: '/jsonl', element: <JsonL /> },
       { path: '/compress', element: <Compress /> },
       { path: '/encrypt', element: <Encrypt /> },
+      { path: '/proxy', element: <Proxy /> },
       { path: '*', element: <NotFound /> },
     ],
     [],

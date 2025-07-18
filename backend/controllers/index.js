@@ -5,6 +5,7 @@ module.exports = {
   jsonlController: require('./jsonl'),
   monitorController: require('./monitor'),
   pipeController: require('./pipe'),
+  proxyController: require('./proxy'),
   readableController: require('./readable'),
   splitController: require('./split'),
   throttleController: require('./throttle'),

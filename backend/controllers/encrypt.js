@@ -22,7 +22,7 @@ const LIMITS = {
  * @returns {Promise<Object>} Encryption results
  */
 const aesEncrypt = async (request, reply) => {
-  const { algorithm = 'aes-256-cbc', key = '', iv = '', outputFormat = 'base64' } = request.query;
+  const { algorithm = 'aes-256-cbc', key = '', outputFormat = 'base64' } = request.query;
 
   let input = request.body;
   if (!input) {
@@ -37,14 +37,18 @@ AES encryption provides strong security for data protection.`;
     // Generate key if not provided
     let encryptionKey;
     if (key) {
-      encryptionKey = Buffer.from(key, 'utf8');
-      // Ensure key is the right length for the algorithm
-      if (algorithm.includes('256')) {
-        encryptionKey = crypto.scryptSync(key, 'salt', 32);
-      } else if (algorithm.includes('192')) {
-        encryptionKey = crypto.scryptSync(key, 'salt', 24);
+      if (key.length === 64 || key.length === 48 || key.length === 32) {
+        // Assume hex key
+        encryptionKey = Buffer.from(key, 'hex');
       } else {
-        encryptionKey = crypto.scryptSync(key, 'salt', 16);
+        // Derive key from password
+        if (algorithm.includes('256')) {
+          encryptionKey = crypto.scryptSync(key, 'salt', 32);
+        } else if (algorithm.includes('192')) {
+          encryptionKey = crypto.scryptSync(key, 'salt', 24);
+        } else {
+          encryptionKey = crypto.scryptSync(key, 'salt', 16);
+        }
       }
     } else {
       // Generate random key
@@ -52,16 +56,11 @@ AES encryption provides strong security for data protection.`;
       encryptionKey = crypto.randomBytes(keyLength);
     }
 
-    // Generate IV if not provided
-    let initVector;
-    if (iv) {
-      initVector = Buffer.from(iv, 'hex');
-    } else {
-      initVector = crypto.randomBytes(16);
-    }
+    // Generate IV
+    const initVector = crypto.randomBytes(16);
 
-    // Create cipher
-    const cipher = crypto.createCipher(algorithm, encryptionKey);
+    // Create cipher using modern API
+    const cipher = crypto.createCipheriv(algorithm, encryptionKey, initVector);
 
     let encrypted = cipher.update(input, 'utf8', outputFormat);
     encrypted += cipher.final(outputFormat);
@@ -87,7 +86,7 @@ AES encryption provides strong security for data protection.`;
         },
         summary: {
           keyGenerated: !key,
-          ivGenerated: !iv,
+          ivGenerated: true,
           securityLevel: algorithm.includes('256') ? 'High' : algorithm.includes('192') ? 'Medium' : 'Standard',
         },
       },
@@ -131,6 +130,14 @@ const aesDecrypt = async (request, reply) => {
       });
     }
 
+    if (!iv) {
+      return reply.status(400).send({
+        success: false,
+        message: 'IV required for decryption',
+        error: 'Please provide the IV used for encryption',
+      });
+    }
+
     // Prepare key
     let decryptionKey;
     if (key.length === 64 || key.length === 48 || key.length === 32) {
@@ -147,8 +154,11 @@ const aesDecrypt = async (request, reply) => {
       }
     }
 
-    // Create decipher
-    const decipher = crypto.createDecipher(algorithm, decryptionKey);
+    // Prepare IV
+    const initVector = Buffer.from(iv, 'hex');
+
+    // Create decipher using modern API
+    const decipher = crypto.createDecipheriv(algorithm, decryptionKey, initVector);
 
     let decrypted = decipher.update(input, inputFormat, 'utf8');
     decrypted += decipher.final('utf8');
@@ -177,11 +187,12 @@ const aesDecrypt = async (request, reply) => {
       },
     });
   } catch (error) {
+    console.log(error);
     reply.status(500).send({
       success: false,
       message: 'AES decryption failed',
       error: error.message,
-      hint: 'Make sure you are using the correct key and algorithm that was used for encryption.',
+      hint: 'Make sure you are using the correct key, IV and algorithm that was used for encryption.',
     });
   }
 };
@@ -326,8 +337,6 @@ Digital signatures provide strong security guarantees.`;
       results: {
         signature,
         publicKey,
-        // Note: In production, never return private key!
-        privateKey: '*** PRIVATE KEY HIDDEN FOR SECURITY ***',
         stats: {
           algorithm,
           inputSize,

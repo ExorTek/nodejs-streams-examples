@@ -10,5 +10,6 @@ export { default as Split } from './split';
 export { default as JsonL } from './jsonl';
 export { default as Compress } from './compress';
 export { default as Encrypt } from './encrypt';
+export { default as Proxy } from './proxy';
 
 export { default as NotFound } from './error/notfound';
